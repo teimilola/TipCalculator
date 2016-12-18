@@ -15,9 +15,15 @@
   }
   .box{
      border: 1px solid #678594;
-     width: 330px;
+     width: 340px;
      margin-left: 45px;
      height: 40%;
+  }
+  .vis{
+     border: 0px solid red;
+     width: 80%;
+     height: 70px;
+
   }
   h2{
      margin-left: 37px;
@@ -29,7 +35,7 @@
   }
   input[type=radio]{
      width: 23px;
-      height: 22px;
+     height: 22px;
       text-align: justify;
       border: 2px solid #b0bec5;
       margin-left: 26px;
@@ -52,7 +58,7 @@
     margin-left: 26px;
   }
   input[input=text}{
-      width: 60%
+      width: 60%;
       height: 100px;
       margin-left:26px;
       margin-top:26px;
@@ -76,9 +82,9 @@
 </div>
 <br>
 <form method= "post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-<label for= "bill">Bill Subtotal: </label>
+<label for= "bill">Bill Subtotal: $</label>
 <input type = "text" style="width:60%;" id= "bill" name="bill" value="<?php if($_SERVER["REQUEST_METHOD"] == "POST"){ echo format_input($_POST["bill"]); } ?>"><br><br>
-<label for= "tips">Tip Percentage: </label> <br><br>
+<label for= "tips" class="vis" id="vis">Tip Percentage: </label> <br><br>
 <?php
    for($i = 0; $i < 3; $i++){
    ?>
@@ -89,6 +95,7 @@
 ?>
 <br><input type="radio" name= "tips" id= "4" value="4" <?php if($_SERVER["REQUEST_METHOD"] == "POST"){ $tip = format_input($_POST["tips"]);if(($tip != 10) && ($tip != 15) && ($tip != 20) && ($tip != 0)) {echo "checked";}}?> > Custom:
 <input type="text" id= "custom" name = "custom" style = "width: 48px;" value="<?php if($_SERVER["REQUEST_METHOD"] == "POST"){ echo format_input($_POST["custom"]); } ?>"> %
+
 <br><br>
 <input type="submit">
 </form>
@@ -97,28 +104,48 @@
 <?php
    header('Access-Control-Allow-Origin: *');
    $bill = "";
-   $tips = 0;
+   $tip = 0;
    $total = 0;
    $tip_amount = 0;
+   //$dom = new DOMDocument();
+   //$dom->loadHTMLfile('127.0.0.1/php');
    if($_SERVER["REQUEST_METHOD"] == "POST"){
       $bill = format_input($_POST["bill"]);
       $tip = format_input($_POST["tips"]);
       $custom = format_input($_POST["custom"]);
+      if(!is_numeric($tip)){
+         $tip = 0;
+       }
       if($tip == 4){
           $tip = $custom;
       }
+
       //also check if a radio button is clicked &&
       if(is_numeric($bill) && $bill > 0 && $tip > 0 && is_numeric($tip)){
          $tip_amount = ($bill * $tip)/ 100;
          $total = $bill + $tip_amount;
          echo "<br>";
-         echo "Bill: " . $bill;
+         echo "Bill: $" . $bill;
          echo "<br><br>";
-         echo "Tip Amount: " . $tip_amount;
+         echo "Tip Amount: $" . $tip_amount;
          echo "<br><br>";
-         echo "Total Bill: " . $total;
+         echo "Total Bill: $" . $total;
          echo "<br><br>";
-      }
+      } else if(!is_numeric($bill) || $bill < 0){
+          //change input text color to red
+          echo '<script type="text/javascript">',
+          'document.getElementById("bill").style.border= "2px solid red";',
+          '</script>';
+      } else if(!is_numeric($tip) || $tip < 0){
+             //other input text
+            echo '<script type="text/javascript">',
+            'document.getElementById("custom").style.border= "2px solid red";',
+            '</script>';
+       }else if($tip == 0){
+             echo '<script type="text/javascript">',
+             'document.getElementById("vis").style.border= "2px solid red";',
+              '</script>';
+       }
    }
 
    function format_input($input){
